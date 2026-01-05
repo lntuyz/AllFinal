@@ -1,6 +1,5 @@
 // ===============================================
 // FILE: src/pages/Customers/useCustomer.js
-// ✅ FIXED: Hiển thị TẤT CẢ khách hàng (không phân biệt chi nhánh)
 // ===============================================
 import { useState, useEffect, useMemo } from 'react';
 import { message } from 'antd';
@@ -26,7 +25,6 @@ export const useCustomer = () => {
     try {
       setLoading(true);
       
-      // ✅ KHÔNG GỬI branchId - Lấy TẤT CẢ khách hàng
       const data = await customerApi.getAllCustomers();
       
       if (!Array.isArray(data)) {
@@ -37,11 +35,11 @@ export const useCustomer = () => {
 
       const processedCustomers = data.map(c => ({
         ...c,
-        rank: c.rank 
-          ? c.rank.charAt(0).toUpperCase() + c.rank.slice(1).toLowerCase()
-          : 'Bronze'
+        rank: c.rank || 'Đồng'
       }));
       
+      console.log('✅ [useCustomer] Total customers:', processedCustomers.length);
+      console.log('✅ [useCustomer] Sample ranks:', processedCustomers.slice(0, 3).map(c => c.rank));
       setCustomers(processedCustomers);
       
     } catch (error) {
@@ -56,10 +54,17 @@ export const useCustomer = () => {
   // ============= STATS =============
   const stats = useMemo(() => {
     const total = customers.length;
-    const bronze = customers.filter(c => c.rank.toLowerCase() === 'bronze').length;
-    const silver = customers.filter(c => c.rank.toLowerCase() === 'silver').length;
-    const gold = customers.filter(c => c.rank.toLowerCase() === 'gold').length;
-    const platinum = customers.filter(c => c.rank.toLowerCase() === 'platinum').length;
+    
+    // So sánh chính xác với rank tiếng Việt từ DB
+    const bronze = customers.filter(c => c.rank === 'Đồng').length;
+    const silver = customers.filter(c => c.rank === 'Bạc').length;
+    const gold = customers.filter(c => c.rank === 'Vàng').length;
+    const platinum = customers.filter(c => 
+      c.rank === 'Kim Cương' || c.rank === 'Kim cương'
+    ).length;
+    
+    console.log('📊 Stats:', { total, bronze, silver, gold, platinum });
+    
     return { total, bronze, silver, gold, platinum };
   }, [customers]);
 
@@ -71,8 +76,16 @@ export const useCustomer = () => {
         
         // Filter by rank
         const currentTab = RANK_TABS.find(t => t.id === activeRank);
-        const customerRank = customer.rank?.toLowerCase() || 'bronze';
-        const matchRank = !currentTab?.rank || customerRank === currentTab.rank.toLowerCase();
+        
+        let matchRank = true;
+        if (currentTab?.rank) {
+          // Xử lý cả "Kim Cương" và "Kim cương"
+          if (currentTab.rank === 'Kim Cương') {
+            matchRank = customer.rank === 'Kim Cương' || customer.rank === 'Kim cương';
+          } else {
+            matchRank = customer.rank === currentTab.rank;
+          }
+        }
         
         // Filter by search query
         const query = searchQuery.toLowerCase().trim();
@@ -106,14 +119,19 @@ export const useCustomer = () => {
   const rankCount = (rankId) => {
     const tab = RANK_TABS.find(t => t.id === rankId);
     if (!tab?.rank) return customers.length;
-    return customers.filter(c => 
-      c.rank.toLowerCase() === tab.rank.toLowerCase()
-    ).length;
+    
+    // Xử lý cả "Kim Cương" và "Kim cương"
+    if (tab.rank === 'Kim Cương') {
+      return customers.filter(c => 
+        c.rank === 'Kim Cương' || c.rank === 'Kim cương'
+      ).length;
+    }
+    
+    return customers.filter(c => c.rank === tab.rank).length;
   };
 
   // ============= DELETE CUSTOMER =============
   const deleteCustomer = async (customerId, customerName) => {
-    // ✅ Check permission
     if (!isSuperAdmin && !isBranchAdmin) {
       message.error('Bạn không có quyền xóa khách hàng');
       return { success: false };
@@ -155,7 +173,7 @@ export const useCustomer = () => {
     const csvContent = [
       headers.join(','),
       ...filteredCustomers.map(c => 
-        [c.id, c.customerId, c.name, c.email, c.phone, c.total_amount, c.rank].join(',')
+        [c.id, c.customerId, `"${c.name}"`, c.email, c.phone, c.total_amount, c.rank].join(',')
       )
     ].join('\n');
     
