@@ -136,7 +136,7 @@ export default function Sidebar({ isOpen, onCloseSidebar }) {
             <span className="icon">
               <TbSettings />
             </span>
-            <span>Cài đặt</span>
+            <span>Log out</span>
           </div>
 
           {showSettingsMenu && (

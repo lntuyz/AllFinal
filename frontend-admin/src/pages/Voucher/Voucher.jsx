@@ -76,15 +76,14 @@ const Voucher = () => {
       return;
     }
 
-    // ✅ Format dates cho input khi edit + log để debug
     const formattedVoucher = {
       ...voucher,
       begin_date: formatDateForInput(voucher.begin_date),
       end_date: formatDateForInput(voucher.end_date),
     };
 
-    console.log("📝 Original voucher:", voucher);
-    console.log("📝 Formatted voucher:", formattedVoucher);
+    console.log(" Original voucher:", voucher);
+    console.log(" Formatted voucher:", formattedVoucher);
 
     setModalMode("edit");
     setSelectedVoucher(formattedVoucher);
@@ -303,7 +302,6 @@ const Voucher = () => {
         <p className="voucher-subtitle">{getHeaderSubtitle()}</p>
       </div>
 
-      {/* ✅ ĐÃ XÓA PHẦN STATS CARDS */}
 
       {/* TOOLBAR */}
       <div className="tabs-action-bar">
