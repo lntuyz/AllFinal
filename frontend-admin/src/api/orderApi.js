@@ -71,9 +71,9 @@ export const orderApi = {
 
       return {
         success: true,
-        items: data.order_items || [],
-        shipping_address: data.shipping_address || null,
-        total_amount: data.total_amount || 0,
+        items: data.data.items || [],
+        shipping_address: data.data.address || null,
+        total_amount: data.data.total_money || 0,
       };
     } catch (error) {
       return {

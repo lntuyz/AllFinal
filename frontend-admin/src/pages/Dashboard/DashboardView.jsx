@@ -105,12 +105,13 @@ const DashboardView = () => {
   if (isAdmin) {
     // ✅ CHỈ LẤY 3 TRẠNG THÁI và MAP SANG TIẾNG VIỆT
     const statusMapping = {
-      Pending: "Chưa xử lý",
+      Pending: "Đang xử lý",
       Completed: "Đã giao",
       Shipping: "Đang giao",
+      Cancelled: "Không thành công",
     };
 
-    const allowedStatuses = ["Pending", "Completed", "Shipping"];
+    const allowedStatuses = ["Pending", "Completed", "Shipping", "Cancelled"];
     const filteredDistribution =
       orderStatus?.distribution?.filter((d) =>
         allowedStatuses.includes(d.name)
@@ -121,7 +122,7 @@ const DashboardView = () => {
       datasets: [
         {
           data: filteredDistribution.map((d) => d.value),
-          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"],
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ff0000ff"],
           borderWidth: 0,
         },
       ],
@@ -320,12 +321,18 @@ const DashboardView = () => {
 
     // ✅ CHỈ LẤY 3 TRẠNG THÁI và MAP SANG TIẾNG VIỆT
     const statusMapping = {
-      Pending: "Chưa xử lý",
-      Delivered: "Đã giao",
-      Processing: "Đang giao",
+      "Đang xử lý": "Đang xử lý",
+      "Đã giao": "Đã giao",
+      "Đang giao": "Đang giao",
+      "Không thành công": "Không thành công",
     };
 
-    const allowedStatuses = ["Pending", "Delivered", "Processing"];
+    const allowedStatuses = [
+      "Đang xử lý",
+      "Đã giao",
+      "Đang giao",
+      "Không thành công",
+    ];
     const filteredOrderStats =
       orderStats?.filter((o) => allowedStatuses.includes(o.status)) || [];
 
@@ -336,7 +343,7 @@ const DashboardView = () => {
       datasets: [
         {
           data: filteredOrderStats.map((o) => o.count),
-          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"],
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#b80000ff"],
           borderWidth: 0,
         },
       ],
